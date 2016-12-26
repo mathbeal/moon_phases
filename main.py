@@ -22,12 +22,12 @@ translate_dict['en'][1] = 'First quarter'
 translate_dict['en'][2] = 'Full Moon'
 translate_dict['en'][3] = 'Laster quarter'
 
-
+#------------------------------------------------------------------------------
 def to_datetime(str_date):
     """ dd/mm/yyyy to datetime """
     return datetime.strptime(str_date, '%d/%m/%Y')
 
-######################################################################
+#------------------------------------------------------------------------------
 def is_leap(year):
     """dit si l'année donnée est is_bissextile ou non (True=oui, False=non)"""
     if (year % 4)==0:
@@ -37,13 +37,14 @@ def is_leap(year):
             return True
     else:
         return False
- 
-######################################################################
+
+#------------------------------------------------------------------------------
 def is_postdate(D1, D2):
     """dit si une date D2 'j/m/a' est postérieure ou égale à une autre date D1 'j/m/a'"""
     return to_datetime(D2) >= to_datetime(D1)
  
-######################################################################
+
+#------------------------------------------------------------------------------
 def jj2date(JJ):
     """calcul d'une date (J,M,A) à partir du jour julien des éphémérides"""
     JJ += 0.5
@@ -75,7 +76,7 @@ def jj2date(JJ):
  
     return "%02d/%02d/%04d" % (J, M, A)
  
-######################################################################
+#------------------------------------------------------------------------------
 def calculphaseslune(k):
     """calcul de la date de la phase de la lune correspondant à la valeur k"""
  
@@ -137,8 +138,9 @@ def calculphaseslune(k):
  
     # retour de la date du calendrier grégorien à partir du jour Julien des éphémérides
     return jj2date(JJ)
- 
-######################################################################
+
+
+#------------------------------------------------------------------------------
 def date_to_k(D, as_int=True):
     """utilitaire de calcul de k pour la date D 'j/m/a' (phases de la lune)"""
  
@@ -152,15 +154,16 @@ def date_to_k(D, as_int=True):
         A += ((0,31,59,90,120,151,181,212,243,273,304,334,365)[M-1] + J) / 365
     k = (A-1900)*12.3685
     return int(k) if as_int else k
- 
-######################################################################
+
+
+#------------------------------------------------------------------------------
 def to_phase_str(phase_id, lang='fr'):
     try:
         return translate_dict[lang][phase_id]
     except KeyError:
         return str(phase)
 
-######################################################################
+#------------------------------------------------------------------------------
 def moon_phase_generator(D, lang):
     MoonPhase = namedtuple('MoonPhase', 'phase_id phase_txt date')
     k = date_to_k(D)  # calcul du k initial basé sur D
@@ -176,6 +179,7 @@ def moon_phase_generator(D, lang):
         yield MP
         k += 0.25
 
+#------------------------------------------------------------------------------
 def phaseslune(D, n=1, lang='fr'):
     """calcul des n dates de phase de la lune qui commence(nt) à la date D 'j/m/a' """
     gen_moon_phase = moon_phase_generator(D, lang)
@@ -188,7 +192,7 @@ def phaseslune(D, n=1, lang='fr'):
         L.append(mp)
     return L
  
-######################################################################
+#------------------------------------------------------------------------------
 def phaseslune2(D1, D2, lang='fr'):
     """calcul des dates de phase de la lune à partir de D1 'j/m/a' et jusqu'à D2 'j/m/a' exclue"""
     gen_moon_phase = moon_phase_generator(D1, lang)
@@ -206,7 +210,8 @@ def phaseslune2(D1, D2, lang='fr'):
                 
     return L
 
-
+#------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 def samples():
     # calculer la date à partir du jour Julien des Ephémérides
     print(jj2date(2436116.31))  # affiche: 04/10/1957
@@ -275,65 +280,5 @@ def samples():
     # [(2013/1/11 19:43:37, 'new'), (2013/1/27 04:38:22, 'full'), (2013/2/10 07:20:06, 'new'), (2013/2/25 20:26:03, 'full'), (2013/3/11 19:51:00, 'new'), (2013/3/27 09:27:18, 'full'), (2013/4/10 09:35:17, 'new'), (2013/4/25 19:57:06, 'full'), (2013/5/10 00:28:22, 'new'), (2013/5/25 04:24:55, 'full'), (2013/6/8 15:56:19, 'new'), (2013/6/23 11:32:15, 'full'), (2013/7/8 07:14:16, 'new'), (2013/7/22 18:15:31, 'full'), (2013/8/6 21:50:40, 'new'), (2013/8/21 01:44:35, 'full'), (2013/9/5 11:36:07, 'new'), (2013/9/19 11:12:49, 'full'), (2013/10/5 00:34:31, 'new'), (2013/10/18 23:37:39, 'full'), (2013/11/3 12:49:57, 'new'), (2013/11/17 15:15:44, 'full'), (2013/12/3 00:22:22, 'new'), (2013/12/17 09:28:05, 'full'), (2014/1/1 11:14:10, 'new'), (2014/1/16 04:52:10, 'full')]######################################################################
 
 
-def test_astral():
-    from astral import Astral
-
-    a = Astral()
-    answers_set = set([])
-    def compare_moon_phase(test_date):
-
-        def astral_to_currentcode(astral_code):
-            """ astral code is from 0 to 21 """
-            answers_set.add(astral_code)
-            if astral_code == 0: return 0
-            if astral_code <= 7: return 1
-            if astral_code <= 14: return 2
-            if astral_code <= 21: return 3
-            return 0
-        
-        str_date = test_date.strftime('%d/%m/%Y')
-        phase = phaseslune(str_date)[0]
-        status = astral_to_currentcode(a.moon_phase(test_date)) == phase.phase_id
-        if status == False:
-            print(str_date, "Astral", a.moon_phase(test_date), "Cur", phase.phase_id)
-        return status
-    
-    def generate_random_date():
-        from random import randint
-        from random import seed
-        seed(0)
-        while True:
-            yield datetime(randint(2000, datetime.now().year),
-                               randint(1,12),
-                               randint(1, 28))                               
-
-    gen_test_dates = generate_random_date()
-    total = defaultdict(int)
-    NB_CASES = 100
-    for idx in range(NB_CASES):
-        test_date = next(gen_test_dates)
-        status = compare_moon_phase(test_date)
-        total[status] += 1
-    print("Conformite %.2f %%" % (100 * total[True] / sum(total.values())))
-    print("Astral set: ", sorted(answers_set))
-    
-    
-def tests():
-
-    def _test(case):
-        return case.query == case.required
-
-    from collections import namedtuple
-    TC = namedtuple("TestCase", "query required")
-    
-    tests = (
-        TC(jj2date(2436116.31), "04/10/1957"),
-        TC(jj2date(1842713.0), "27/01/0333"),
-        TC(jj2date(2443259.9), "26/04/1977"))
-
-    print(all(tests))
-
 if __name__ == "__main__":
     samples()
-    tests()
-    test_astral()
