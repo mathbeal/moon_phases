@@ -186,7 +186,7 @@ def moon_phase_generator(D, lang):
 
 #------------------------------------------------------------------------------
 def phaseslune(D, n=1, lang='fr'):
-    """calcul des n dates de phase de la lune qui commence(nt) à la date D 'j/m/a' """
+    """Calcul des n dates de phase de la lune qui commence(nt) à la date D 'j/m/a' """
     gen_moon_phase = moon_phase_generator(D, lang)
     
     L = []
@@ -253,16 +253,18 @@ def samples():
     # calculer les dates des phases lumaires commençant à la date D1 donnée et antérieures à D2
     D1='1/7/2008'
     D2='1/8/2008'
+    
     print(D1,D2)
     L=phaseslune2(D1,D2)
     for i in range(0,len(L)):
         print(L[i])
+    
     # affiche: 
     # [0, '03/07/2008']
     # [1, '10/07/2008']
     # [2, '18/07/2008']
     # [3, '25/07/2008']
-    print()
+    print("*******")
     # cas d'un intervalle trop faible:
     print(phaseslune2('1/7/2009', '2/7/2009')) # affiche: [[]] car aucune date de convient
     print("----------------------------------------------------------------------")
@@ -272,7 +274,7 @@ def samples():
     p=["nouvelle lune","premier quartier","pleine lune","dernier quartier"]
  
     x=phaseslune('25/7/2008')
-    print(x[0][0])
+    print("###",x[0][0])
     print(x[0][1], ' : ', p[x[0][0]])  # affiche: "25/07/2008  :  dernier quartier"
     
     x=phaseslune('5/3/2009')

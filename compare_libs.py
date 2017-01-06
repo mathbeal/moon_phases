@@ -1,9 +1,12 @@
 # -*- coding:utf-8 -*-
 from datetime import date
 from datetime import datetime
-
+import julian
 import ephem
 from astral import Astral
+
+to_datetime = lambda dateStr: datetime.strptime(dateStr, '%d/%m/%Y')
+
 CITY_LOCATION = "Paris"
 
 from meuss_moonphase import MeussMoonPhase
@@ -79,12 +82,13 @@ class AstralApi(BaseApi):
 
     def to_julianDate(self, dateStr):
         """ """
-        pass
+        dt = to_datetime(dateStr)
+        return self.a._julianday(dt)
         
     def to_moonPhase(self, dateStr):
         """ """
         print(dateStr)
-        dt = datetime.strptime(dateStr, '%d/%m/%Y')
+        dt = to_datetime(dateStr)
         moon_phase = self.a.moon_phase(dt)
         try:
             return Answer(OK, self.translate[moon_phase])
@@ -112,7 +116,8 @@ class PyEphemApi(BaseApi):
         pass
 
     def to_julianDate(self, dateStr):
-        return ephem.julian_date(dateStr)
+        dt = to_datetime(dateStr)
+        return ephem.julian_date(dt)
         
     def to_moonEnlightment(self, dateStr):
         """Return enlightment rate between 0 and 1
@@ -122,9 +127,9 @@ class PyEphemApi(BaseApi):
     def to_moonPhase(self, dateStr):
         """ """
         #return ephem.Moon(dateStr)
-        dt = datetime.strptime(dateStr, '%d/%m/%Y')
+        dt = to_datetime(dateStr)
         
-        def get_phase_on_day(year,month,day):
+        def get_phase_on_day(year, month, day):
             """
             source: http://stackoverflow.com/questions/2526815/moon-lunar-phase-algorithm
             Returns a floating-point number from 0-1. where 0=new, 0.5=full, 1=new
@@ -169,6 +174,7 @@ class MeussApi(BaseApi):
         pass
     
 
+#----------------------------------------------------------------------------
 if __name__ == "__main__":
     from datetime import date
     from pandas import DataFrame
@@ -184,18 +190,19 @@ if __name__ == "__main__":
                           '28/01/2017':'Dernier Quartier',
                           '19/01/2017':'Premier Quartier',
                           '5/01/2017':'Pleine Lune'}
+    
     for a_day, a_moon in expected_date_moon.items(): 
         tp = OrderedDict()
         tp['Date'] = a_day
-        tp['#Expected'] = a_moon
-        
+        #tp['#Phase'] = a_moon
+        tp['#Julian'] = julian.to_jd(to_datetime(a_day))
         for lname, lobj in libs.items():
-            tp['%s_Phase' % lname] = lobj.to_moonPhase(a_day)
+            #tp['%s_Phase' % lname] = lobj.to_moonPhase(a_day)
             tp['%s_Julian' % lname] = lobj.to_julianDate(a_day)
 
         answers.append(dict(tp))
 
-    print(DataFrame(answers).head())
+    print(DataFrame(answers).to_string())
         
         # print(lobj.to_moonPhase('28/01/2017')) # nouvelle lune
         # print(lobj.to_moonPhase('19/01/2017')) # Dernier Quartier
