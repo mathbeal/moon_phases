@@ -45,7 +45,7 @@ def is_postdate(D1, D2):
  
 
 #------------------------------------------------------------------------------
-def jj2date(JJ):
+def jj_to_date(JJ):
     """calcul d'une date (J,M,A) à partir du jour julien des éphémérides"""
     JJ += 0.5
     Z = int(JJ)
@@ -77,7 +77,7 @@ def jj2date(JJ):
     return "%02d/%02d/%04d" % (J, M, A)
  
 #------------------------------------------------------------------------------
-def calculphaseslune(k):
+def k_to_jj(k):
     """calcul de la date de la phase de la lune correspondant à la valeur k"""
  
     # calcul de T en fonction de k (formule 26.3 du livre de Jean MEEUS)
@@ -135,15 +135,20 @@ def calculphaseslune(k):
         else:
             # => dernier quartier
             JJ += 0.0028 + 0.0004*cos(radians(M)) - 0.0003*cos(radians(MP))
- 
-    # retour de la date du calendrier grégorien à partir du jour Julien des éphémérides
-    return jj2date(JJ)
 
+    return JJ
+
+def date_to_jj(dateStr):
+    k = date_to_k(dateStr)
+    return k_to_jj(k)
+
+def calculphaseslune(k):
+    # retour de la date du calendrier grégorien à partir du jour Julien des éphémérides
+    return jj_to_date(k_to_jj(k))
 
 #------------------------------------------------------------------------------
 def date_to_k(D, as_int=True):
     """utilitaire de calcul de k pour la date D 'j/m/a' (phases de la lune)"""
- 
     dt = to_datetime(D)
     J,M,A = dt.day, dt.month, dt.year     # extraction de la date
     
@@ -214,9 +219,9 @@ def phaseslune2(D1, D2, lang='fr'):
 #------------------------------------------------------------------------------
 def samples():
     # calculer la date à partir du jour Julien des Ephémérides
-    print(jj2date(2436116.31))  # affiche: 04/10/1957
-    print(jj2date(1842713.0))  # affiche: 27/01/0333
-    print(jj2date(2443259.9))  # affiche: 26/04/1977
+    print(jj_to_date(2436116.31)) # affiche: 04/10/1957
+    print(jj_to_date(1842713.0))  # affiche: 27/01/0333
+    print(jj_to_date(2443259.9))  # affiche: 26/04/1977
     print("----------------------------------------------------------------------")
  
     # calculer la date de la 1ère phase lunaire postérieure ou égale à la date donnée
@@ -267,6 +272,7 @@ def samples():
     p=["nouvelle lune","premier quartier","pleine lune","dernier quartier"]
  
     x=phaseslune('25/7/2008')
+    print(x[0][0])
     print(x[0][1], ' : ', p[x[0][0]])  # affiche: "25/07/2008  :  dernier quartier"
     
     x=phaseslune('5/3/2009')
