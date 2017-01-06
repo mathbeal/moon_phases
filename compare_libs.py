@@ -106,7 +106,6 @@ class AstralApi(BaseApi):
                 print("~ LAST QUARTER -- NEW MOON")
                 return Answer(NOK, self.translate[21] * self.translate[0])        
 
-    
 #----------------------------------------------------------------------------
 class PyEphemApi(BaseApi):
     def __init__(self):

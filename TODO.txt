@@ -1,0 +1,8 @@
+
+# Jours juliens
+
+> Verifier les algorithmes sous jacents pour le calcul des jours julien.
+> Origine de la difference ?
+
+
+# 
